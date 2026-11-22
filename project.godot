@@ -17,6 +17,7 @@ Game="*res://scripts/game.gd"
 Sfx="*res://scripts/sfx.gd"
 Fala="*res://scripts/fala.gd"
 Gestos="*res://scripts/gestos.gd"
+Arte="*res://scripts/arte.gd"
 
 [audio]
 

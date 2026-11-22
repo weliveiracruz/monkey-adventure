@@ -15,6 +15,8 @@ const LARG_CIPO := 330.0
 const LARG_AGUA := 55.0
 const VALORES := {"normal": 1, "bronze": 3, "prata": 10}
 const SONS_BANANA := {"normal": "plim", "bronze": "plim_bronze", "prata": "plim_prata", "metalica": "metalica", "verde": "azedo"}
+const CHAVES_ARTE := ["selva", "rio", "savana", "montanha", "caverna", "fazenda", "cidade", "zoo", "praia", "templo"]
+const ARMADILHA_ARTE := ["arm_espinho", "arm_espinho", "arm_espinho", "arm_espinho", "arm_espinho", "arm_espinho", "arm_bueiro", "arm_espinho", "arm_agua_viva", "arm_lanca"]
 const ITENS := {
 	"b": ["normal", false], "b^": ["normal", true], "z": ["bronze", false], "z^": ["bronze", true],
 	"s": ["prata", false], "s^": ["prata", true], "m": ["metalica", false], "v": ["verde", false],
@@ -52,6 +54,9 @@ var _resultado := ""
 var _avisou_chuva := false
 var _avisou_sovaco := false
 var _menu_pausa: CanvasLayer = null
+var chave_arte := ""
+var fundo: Node2D = null
+var aliados_no: Node2D = null
 # piloto automático (testes)
 var _bot_cd := 0.0
 var _bot_resp := false
@@ -60,10 +65,22 @@ var _bot_resp := false
 func _ready() -> void:
 	info = Dados.FASES[num - 1]
 	RenderingServer.set_default_clear_color(info.ceu)
-	if info.get("escuro", false):
+	chave_arte = CHAVES_ARTE[num - 1]
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	if Arte.tem("ceu_" + chave_arte):
+		fundo = Node2D.new()
+		fundo.z_index = -20
+		fundo.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		add_child(fundo)
+		fundo.draw.connect(_desenhar_fundo)
+	elif info.get("escuro", false):
 		var cm := CanvasModulate.new()
 		cm.color = Color(0.45, 0.42, 0.55)
 		add_child(cm)
+	aliados_no = Node2D.new()
+	aliados_no.z_index = 4
+	add_child(aliados_no)
+	aliados_no.draw.connect(_desenhar_aliados)
 	_construir()
 	mac = MacacoS.new()
 	mac.position = Vector2(80, 0)
@@ -167,6 +184,7 @@ func _construir() -> void:
 			ar.w = 48
 			ar.h = 26
 			ar.cor = Color(0.75, 0.75, 0.8)
+			ar.d = {"sprite": ARMADILHA_ARTE[num - 1]}
 		elif tok.begins_with("D:"):
 			_ent("dialogo", tok.substr(2), Vector2(x, 0))
 		elif tok.begins_with("M:") or tok.begins_with("X:"):
@@ -208,6 +226,7 @@ func _construir() -> void:
 		else:
 			push_warning("Trecho desconhecido no mapa: " + tok)
 	x_fim = x
+	_seg(x, x + 1800, "chao")  # chão depois do fim, para não aparecer um buraco atrás do chefe
 	for s in segs:
 		for s2 in segs:
 			if s2 != s and abs(s2.x0 - s.x1) < 1.0:
@@ -1053,6 +1072,9 @@ func _camera(delta: float) -> void:
 	if parado == "torre" or (parado == "fim" and torre_x > 0.0):
 		alvo = Vector2(torre_x, -160.0 + mac.position.y * 0.9)
 	cam.position = cam.position.lerp(alvo, min(1.0, delta * 6.0))
+	if fundo != null:
+		fundo.queue_redraw()
+	aliados_no.queue_redraw()
 
 
 # =============================================================== gestos e pausa
@@ -1248,6 +1270,67 @@ func _piloto(delta: float) -> void:
 # =============================================================== desenho do cenário
 
 func _draw() -> void:
+	if not Arte.tem("chao_" + chave_arte):
+		_draw_simples()
+		return
+	var agua: bool = info.get("agua", false)
+	var largura := x_fim + 1600.0
+	if agua:
+		draw_rect(Rect2(-600, 40, largura, 500), Color(0.08, 0.25, 0.5))
+		Arte.preencher(self, "agua", Rect2(-600, 12, largura, 60), true)
+	else:
+		draw_rect(Rect2(-600, 24, largura, 500), Color(0.04, 0.03, 0.03, 0.92))
+	for s in segs:
+		if s.afundou:
+			continue
+		var w: float = s.x1 - s.x0
+		match s.tipo:
+			"chao":
+				Arte.preencher(self, "chao_" + chave_arte, Rect2(s.x0, 0, w, 320), true)
+				Arte.preencher(self, "borda_" + chave_arte, Rect2(s.x0 - 3, -14, w + 6, 40), true)
+			"tronco":
+				Arte.preencher(self, "tronco", Rect2(s.x0, -10, w, 30))
+			"folha":
+				Arte.preencher(self, "folha", Rect2(s.x0, -8, w, 22))
+			"piso":
+				Arte.preencher(self, "piso", Rect2(s.x0, 0, w, 320))
+	if torre_x > 0.0:
+		Arte.desenhar(self, "torre", Vector2(torre_x, 2), "base")
+		if parado != "fim":
+			Arte.desenhar(self, "banana_ouro", Vector2(torre_x, -545), "centro", 1.6)
+
+
+## Fundo em camadas: céu fixo, paisagem distante e paisagem próxima com paralaxe.
+func _desenhar_fundo() -> void:
+	var vis := get_viewport().get_visible_rect().size
+	var c := cam.get_screen_center_position()
+	Arte.preencher(fundo, "ceu_" + chave_arte, Rect2(c - vis / 2.0, vis))
+	_camada(c, vis, "longe_" + chave_arte, 0.2, 40.0)
+	_camada(c, vis, "perto_" + chave_arte, 0.5, 14.0)
+
+
+func _camada(c: Vector2, vis: Vector2, nome: String, f: float, base_y: float) -> void:
+	var t := Arte.tamanho(nome)
+	var desloc := c.x * (1.0 - f)
+	var esq := c.x - vis.x / 2.0 - desloc
+	var u: float = floor(esq / t.x) * t.x
+	while u < esq + vis.x + t.x:
+		Arte.preencher(fundo, nome, Rect2(u + desloc, base_y - t.y, t.x, t.y))
+		u += t.x
+
+
+func _desenhar_aliados() -> void:
+	if aliados_fase <= 0 or num < 8 or mac == null:
+		return
+	for i in aliados_fase:
+		var x: float = mac.position.x - 64.0 - i * 36.0
+		if parado == "torre" or (parado == "fim" and torre_x > 0.0):
+			x = torre_x - 110.0 - i * 36.0
+		var y: float = -absf(sin(t_total * 9.0 + i * 1.3)) * 7.0
+		Arte.desenhar(aliados_no, "aliado", Vector2(x, y + 2), "base", 0.9)
+
+
+func _draw_simples() -> void:
 	var agua: bool = info.get("agua", false)
 	if agua:
 		draw_rect(Rect2(-300, 14, x_fim + 1200, 500), Color(0.2, 0.45, 0.8, 0.9))
@@ -1267,21 +1350,12 @@ func _draw() -> void:
 				draw_rect(Rect2(s.x0, 0, w, 12), info.borda)
 			"tronco":
 				draw_rect(Rect2(s.x0, -6, w, 24), Color(0.45, 0.3, 0.15))
-				draw_circle(Vector2(s.x0, 6), 12, Color(0.55, 0.38, 0.2))
-				draw_circle(Vector2(s.x1, 6), 12, Color(0.55, 0.38, 0.2))
 			"folha":
 				draw_rect(Rect2(s.x0, -2, w, 14), Color(0.25, 0.7, 0.25))
-				draw_line(Vector2(s.x0 + 6, 5), Vector2(s.x1 - 6, 5), Color(0.15, 0.45, 0.15), 2)
 			"piso":
 				draw_rect(Rect2(s.x0, 0, w, 320), info.chao.darkened(0.15))
-				draw_line(Vector2(s.x0 + 20, 0), Vector2(s.x0 + 50, 40), Color.BLACK, 2)
-				draw_line(Vector2(s.x0 + 70, 0), Vector2(s.x0 + 45, 50), Color.BLACK, 2)
 	if torre_x > 0.0:
 		draw_rect(Rect2(torre_x - 60, -500, 120, 500), Color(0.45, 0.38, 0.32))
-		for i in 10:
-			draw_line(Vector2(torre_x - 60, -45.0 * i), Vector2(torre_x + 60, -45.0 * i), Color(0.3, 0.25, 0.2), 2)
-		if parado != "fim" or Game.concluiu == false:
-			draw_arc(Vector2(torre_x, -470), 18, 0.3, PI - 0.3, 10, Color(1, 0.8, 0.1), 9)
 
 
 func _deco(x: float) -> void:

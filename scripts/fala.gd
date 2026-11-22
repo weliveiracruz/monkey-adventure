@@ -67,10 +67,10 @@ func _montar_legenda() -> void:
 	_painel = PanelContainer.new()
 	_painel.anchor_left = 0.08
 	_painel.anchor_right = 0.92
-	_painel.anchor_top = 0.74
+	_painel.anchor_top = 0.80
 	_painel.anchor_bottom = 0.96
 	var estilo := StyleBoxFlat.new()
-	estilo.bg_color = Color(0, 0, 0, 0.72)
+	estilo.bg_color = Color(0, 0, 0, 0.6)
 	estilo.set_corner_radius_all(14)
 	estilo.content_margin_left = 18
 	estilo.content_margin_right = 18

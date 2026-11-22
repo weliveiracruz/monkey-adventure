@@ -200,16 +200,33 @@ func _draw() -> void:
 	var tremor := 0.0
 	if estado == "aviso":
 		tremor = sin(anim * 50.0) * 5.0
+	var nome := "chefe_" + id
 	var r := Rect2(-w / 2.0 + tremor, base_y - h, w, h)
-	var c: Color = d.cor
-	draw_rect(r, c)
-	draw_rect(r, c.darkened(0.5), false, 3.0)
-	var olho := Vector2(r.position.x + 22, r.position.y + 24)
-	draw_circle(olho, 10, Color.WHITE)
-	draw_circle(olho, 5, Color.BLACK)
+	if Arte.tem(nome):
+		var tam := Arte.tamanho(nome)
+		var giro := 0.0
+		if estado == "tonto":
+			giro = sin(anim * 6.0) * 0.08
+		elif estado == "aviso":
+			giro = -0.06
+		var respira := 1.0 + sin(anim * 3.0) * 0.015
+		draw_set_transform(Vector2(tremor, base_y), giro, Vector2(1.0, respira))
+		Arte.desenhar(self, nome, Vector2(0, 4), "base")
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		r = Rect2(-tam.x / 2.0, base_y - tam.y, tam.x, tam.y)
+	else:
+		var c: Color = d.cor
+		draw_rect(r, c)
+		draw_rect(r, c.darkened(0.5), false, 3.0)
+		var olho := Vector2(r.position.x + 22, r.position.y + 24)
+		draw_circle(olho, 10, Color.WHITE)
+		draw_circle(olho, 5, Color.BLACK)
 	if estado == "tonto":
 		for i in 3:
 			var a := anim * 4.0 + i * TAU / 3.0
 			draw_circle(Vector2(cos(a) * 40.0, r.position.y - 20 + sin(a) * 10.0), 7, Color(1, 0.95, 0.3))
 	var fonte := ThemeDB.fallback_font
-	draw_string(fonte, Vector2(-w / 2.0, r.position.y - 40), "%s  %s" % [d.nome, "♥".repeat(max(hp, 0))], HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color.WHITE)
+	var titulo := "%s  %s" % [d.nome, "♥".repeat(max(hp, 0))]
+	var pos_t := Vector2(-w / 2.0, r.position.y - 24)
+	draw_string_outline(fonte, pos_t, titulo, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, 6, Color(0, 0, 0, 0.8))
+	draw_string(fonte, pos_t, titulo, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color.WHITE)

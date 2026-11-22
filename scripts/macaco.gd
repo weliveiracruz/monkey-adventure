@@ -56,7 +56,34 @@ func caixa() -> Rect2:
 	return Rect2(position.x - 18, position.y - h, 36, h)
 
 
+func pose() -> String:
+	if cipo != null:
+		return "macaco_pendurado"
+	if abaixado_t > 0.0:
+		return "macaco_abaixado"
+	if not no_chao:
+		return "macaco_pulo"
+	return "macaco_corre1" if int(anim * 9.0) % 2 == 0 else "macaco_corre2"
+
+
 func _draw() -> void:
+	if Arte.tem("macaco_corre1"):
+		var cor := Color.WHITE
+		if invuln_t > 0.0 and int(anim * 14.0) % 2 == 0:
+			cor.a = 0.4
+		var inclina := 0.0
+		if dash_t > 0.0:
+			inclina = 0.18 * dash_dir
+		draw_set_transform(Vector2.ZERO, inclina, Vector2.ONE)
+		Arte.desenhar(self, pose(), Vector2(0, 4), "base", 1.0, false, cor)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		if objeto != "":
+			Arte.desenhar(self, "obj_" + objeto, Vector2(24, -40), "centro", 0.7)
+		if blind_t > 0.0:
+			var pul := 0.6 + sin(anim * 10.0) * 0.2
+			draw_arc(Vector2(0, -45), 50, 0, TAU, 32, Color(0.85, 0.9, 1.0, pul), 5)
+			draw_arc(Vector2(0, -45), 44, 0, TAU, 32, Color(1, 1, 1, pul * 0.5), 2)
+		return
 	var marrom := Color(0.45, 0.28, 0.15)
 	var bege := Color(0.85, 0.7, 0.5)
 	if invuln_t > 0.0 and int(anim * 14.0) % 2 == 0:

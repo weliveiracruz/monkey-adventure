@@ -69,6 +69,9 @@ Nas opções também dá para deixar o Macaco mais lento, desligar as dicas fala
 - `scripts/game.gd`: vida, pontos, bananas, aliados, progresso salvo e opções.
 - `scripts/menu.gd`, `scripts/main.gd`: menus e troca de telas.
 - `scripts/macaco.gd`, `scripts/entidade.gd`: desenho do Macaco e das coisas do cenário.
+- `arte/`: todas as ilustrações (Macaco, bichos, chefes, bananas, objetos e os cenários de cada fase), em SVG.
+- `ferramentas/gerar_arte.py`: gera a pasta `arte/`. Para mudar um desenho, edite o script e rode `python3 ferramentas/gerar_arte.py`.
+- `scripts/arte.gd`, `scripts/arte_info.gd`: carregam e desenham as ilustrações.
 - `testes/`: testes automáticos (o piloto automático joga as 10 fases).
 - `export_presets.cfg`: configuração da exportação para Android.
 - `Monkey Adventure - Roteiro e Plano.md`: o roteiro completo.
