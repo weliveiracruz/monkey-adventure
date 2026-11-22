@@ -483,6 +483,8 @@ func dialogo(id: String) -> void:
 		return
 	if id == "f9_aliados" and aliados_fase <= 0:
 		return
+	if not Game.opcoes.dialogos:
+		return
 	Fala.sequencia(linhas)
 	em_dialogo = true
 
@@ -942,6 +944,9 @@ func _topo_da_torre() -> void:
 	queue_redraw()
 	dialogo("torre_topo")
 	dialogo("final")
+	if not Game.opcoes.dialogos:
+		Fala.dizer("Você pegou a banana de ouro! O Macaco voltou para a selva como herói.", "Narrador")
+		em_dialogo = true
 	Game.concluir_fase(num)
 	_resultado = "fim"
 	_fim_t = 1.5

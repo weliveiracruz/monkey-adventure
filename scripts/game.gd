@@ -18,6 +18,7 @@ var fase := 1           ## fase atual / para continuar
 var fase_liberada := 1  ## maior fase já liberada
 var concluiu := false   ## terminou o jogo pelo menos uma vez
 var opcoes := {
+	"dialogos": false,  ## diálogos da história (desligados por padrão)
 	"lenta": false,     ## velocidade mais lenta do Macaco
 	"dicas": true,      ## dicas faladas ("Pule!", "Abaixe!")
 	"vibrar": true,

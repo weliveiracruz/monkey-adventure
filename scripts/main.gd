@@ -72,6 +72,8 @@ func _como_jogar() -> void:
 func _texto_opcao(chave: String) -> String:
 	var v: bool = Game.opcoes[chave]
 	match chave:
+		"dialogos":
+			return "Diálogos da história: " + ("ligados" if v else "desligados")
 		"lenta":
 			return "Velocidade do Macaco: " + ("lenta" if v else "normal")
 		"dicas":
@@ -84,7 +86,7 @@ func _texto_opcao(chave: String) -> String:
 
 
 func _opcoes() -> void:
-	var chaves := ["lenta", "dicas", "vibrar", "legendas"]
+	var chaves := ["dialogos", "lenta", "dicas", "vibrar", "legendas"]
 	var itens := []
 	var m := MenuS.new()
 	for i in chaves.size():

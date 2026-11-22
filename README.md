@@ -39,7 +39,9 @@ Nos chefes: som subindo é para pular, som descendo é para abaixar, dois toques
 
 Bananas: cacho normal vale 1 ponto de vida, bronze 3, prata 10. A metálica deixa o Macaco blindado por 8 segundos. A verde tira vida. A sacolinha guarda 10 bananas; o resto vai para baixo do sovaco.
 
-Nas opções dá para deixar o Macaco mais lento, desligar as dicas faladas, a vibração e as legendas. O progresso é salvo sozinho ao fim de cada fase.
+Os diálogos da história (Vovô Macaco, chefes, narrador) vêm desligados. Para ouvir a história, ligue em Opções, "Diálogos da história". Os avisos de jogo, como "Pule!" e as dicas, continuam funcionando.
+
+Nas opções também dá para deixar o Macaco mais lento, desligar as dicas faladas, a vibração e as legendas. O progresso é salvo sozinho ao fim de cada fase.
 
 ## As 10 fases
 
