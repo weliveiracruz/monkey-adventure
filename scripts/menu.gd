@@ -46,6 +46,7 @@ func _ready() -> void:
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		caixa.add_child(l)
 		_labels.append(l)
+	Fala.menus_abertos += 1
 	_alvo_anterior = Gestos.alvo
 	Gestos.alvo = self
 	_realcar()
@@ -56,6 +57,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	Fala.menus_abertos = max(0, Fala.menus_abertos - 1)
 	if Gestos.alvo == self:
 		Gestos.alvo = _alvo_anterior if is_instance_valid(_alvo_anterior) else null
 

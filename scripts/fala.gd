@@ -27,6 +27,10 @@ var _id := 0
 var _id_atual := -1
 var _esconder_t := 0.0
 
+## Quantos menus estão abertos: nos menus a voz fala sempre, mesmo com a narração desligada,
+## para quem não enxerga conseguir ligar de novo.
+var menus_abertos := 0
+
 var _painel: PanelContainer
 var _label: Label
 
@@ -142,7 +146,7 @@ func _proxima() -> void:
 	var mostrado := texto if quem == "" else quem + ": " + texto
 	_label.text = mostrado
 	_painel.visible = Game.opcoes.legendas
-	if _tem_tts:
+	if _tem_tts and (Game.opcoes.narracao or menus_abertos > 0):
 		_id += 1
 		_id_atual = _id
 		var falado := texto if quem == "" else quem + ". " + texto
