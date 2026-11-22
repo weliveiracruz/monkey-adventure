@@ -1,0 +1,5 @@
+.godot/
+*.gd.uid
+build/*.idsig
+build/*unsigned*
+*.keystore
